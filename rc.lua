@@ -211,14 +211,14 @@ local function move_from_closed_screen(from_screen, to_screen_num, tagname)
    end
 end
 
-screen.connect_signal("removed", function(from_screen) move_from_closed_screen(from_screen, 1, "9") end)
+screen.connect_signal("removed", function(from_screen) move_from_closed_screen(from_screen, 1, "ext") end)
 
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "ext" }, s, awful.layout.layouts[1])
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -478,6 +478,54 @@ for i = 1, 9 do
                   {description = "toggle focused client on tag #" .. i, group = "tag"})
     )
 end
+
+
+-- special for "ext" tag
+    globalkeys = gears.table.join(globalkeys,
+        -- View tag only.
+        awful.key({ modkey }, "#19",
+                  function ()
+                        local screen = awful.screen.focused()
+                        local tag = awful.tag.find_by_name(screen, "ext")
+                        if tag then
+                           tag:view_only()
+                        end
+                  end,
+                  {description = "view tag ext", group = "tag"}),
+        -- Toggle tag display.
+        awful.key({ modkey, "Control" }, "#19",
+                  function ()
+                      local screen = awful.screen.focused()
+                      local tag = awful.tag.find_by_name(screen, "ext")
+                      if tag then
+                         awful.tag.viewtoggle(tag)
+                      end
+                  end,
+                  {description = "toggle tag ext", group = "tag"}),
+        -- Move client to tag.
+        awful.key({ modkey, "Shift" }, "#19",
+                  function ()
+                      if client.focus then
+                          local tag = awful.tag.find_by_name(client.focus.screen, "ext")
+                          if tag then
+                              client.focus:move_to_tag(tag)
+                          end
+                     end
+                  end,
+                  {description = "move focused client to tag ext", group = "tag"}),
+        -- Toggle tag on focused client.
+        awful.key({ modkey, "Control", "Shift" }, "#19",
+                  function ()
+                      if client.focus then
+                          local tag = awful.tag.find_by_name(client.focus.screen, "ext")
+                          if tag then
+                              client.focus:toggle_tag(tag)
+                          end
+                      end
+                  end,
+                  {description = "toggle focused client on tag ext", group = "tag"})
+    )
+
 
 clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
