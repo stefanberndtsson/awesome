@@ -295,8 +295,8 @@ globalkeys = gears.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
-    awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
-              {description = "show main menu", group = "awesome"}),
+--    awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
+--              {description = "show main menu", group = "awesome"}),
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
@@ -358,6 +358,7 @@ globalkeys = gears.table.join(
 --    awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
 --              {description = "run prompt", group = "launcher"}),
     awful.key({ modkey }, "r", function() awful.spawn("rofi -show run") end, {description = "rofi", group = "launcher"}),
+    awful.key({ modkey }, "w", function() awful.spawn("rofi -show window") end, {description = "rofi", group = "launcher"}),
 
     awful.key({ modkey }, "x",
               function ()
