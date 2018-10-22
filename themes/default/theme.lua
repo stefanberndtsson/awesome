@@ -31,6 +31,8 @@ theme.border_focus  = "#535d6c"
 theme.border_marked = "#91231c"
 
 theme.tasklist_disable_icon = true
+theme.taglist_font = "sans 8"
+theme.taglist_spacing = 0
 
 -- There are other variable sets
 -- overriding the default one when
