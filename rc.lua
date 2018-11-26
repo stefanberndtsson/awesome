@@ -15,7 +15,7 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 require("awful.hotkeys_popup.keys")
 
 -- Load Debian menu entries
-local debian = require("debian.menu")
+-- local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 local moving_client = nil
 
@@ -61,6 +61,7 @@ editor_cmd = terminal .. " -e " .. editor
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
+altkey = "Mod1"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -120,7 +121,7 @@ else
     mymainmenu = awful.menu({
         items = {
                   menu_awesome,
-                  { "Debian", debian.menu.Debian_menu.Debian },
+--                  { "Debian", debian.menu.Debian_menu.Debian },
                   menu_terminal,
                 }
     })
@@ -284,6 +285,10 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
+local function setup_terminals()
+   awful.spawn(terminal)
+end
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
@@ -315,9 +320,9 @@ globalkeys = gears.table.join(
               {description = "swap with next client by index", group = "client"}),
     awful.key({ modkey, "Shift"   }, "k", function () awful.client.swap.byidx( -1)    end,
               {description = "swap with previous client by index", group = "client"}),
-    awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end,
+    awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative( 1) end,
               {description = "focus the next screen", group = "screen"}),
-    awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end,
+    awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative(-1) end,
               {description = "focus the previous screen", group = "screen"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
               {description = "jump to urgent client", group = "client"}),
@@ -331,6 +336,8 @@ globalkeys = gears.table.join(
         {description = "go back", group = "client"}),
 
     -- Standard program
+    awful.key({ modkey, "Shift"   }, "Return", function () setup_terminals() end,
+              {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
@@ -387,6 +394,19 @@ globalkeys = gears.table.join(
               {description = "show the menubar", group = "launcher"})
 )
 
+local function client_snap_side(client, side, percent)
+   local axis = 'vertically'
+   if client.maximized then
+      client.maximized = false
+   end
+   local sideplacement = awful.placement.left
+   if side == "right" then
+      sideplacement = awful.placement.right
+   end
+   local f = awful.placement.scale + sideplacement + (axis and awful.placement['maximize_'..axis] or nil)
+   local geo = f(client.focus, {honor_workarea=true, to_percent = percent})
+end
+
 clientkeys = gears.table.join(
     awful.key({ modkey,           }, "f",
         function (c)
@@ -394,15 +414,13 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey }, "F7",
-    		function (c)
-		  if moving_client then
-		    moving_client = nil
-		  else
-		    moving_client = c
-		  end
-		end
-		),
+    awful.key({ modkey, "Shift"}, "Left", function(c) client_snap_side(c, "left", 0.5) end, {description = "snap-left 50", group = "client"}),
+    awful.key({ modkey, "Shift"}, "Right", function(c) client_snap_side(c, "right", 0.5) end, {description = "snap-right 50", group = "client"}),
+    awful.key({ modkey, "Control"}, "Left", function(c) client_snap_side(c, "left", 0.3) end, {description = "snap-left 30", group = "client"}),
+    awful.key({ modkey, "Control"}, "Right", function(c) client_snap_side(c, "right", 0.3) end, {description = "snap-right 30", group = "client"}),
+    awful.key({ modkey, altkey}, "Left", function(c) client_snap_side(c, "left", 0.7) end, {description = "snap-left 70", group = "client"}),
+    awful.key({ modkey, altkey}, "Right", function(c) client_snap_side(c, "right", 0.7) end, {description = "snap-right 70", group = "client"}),
+
     awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
@@ -524,7 +542,7 @@ for i = 1, 10 do
                           end
                      end
                   end,
-                  {description = "move focused client to tag #"..i, group = "tag"}),
+                  {description = "move focused client to tag #F"..i, group = "tag"}),
         -- Toggle tag on focused client.
         awful.key({ modkey, "Control", "Shift" }, "#" .. i + 66,
                   function ()
